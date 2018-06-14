@@ -1,0 +1,44 @@
+#!/bin/bash
+
+tt_get_erlang_ver () {
+    erl -eval '{ok, Version} = file:read_file(filename:join([code:root_dir(), "releases", erlang:system_info(otp_release), "OTP_VERSION"])), io:fwrite(Version), halt().' -noshell
+}
+
+display_help () {
+    echo "
+        ev          prints out the current Erlang version
+        h, l        displays help
+        kill        kill what you pass in
+        redep       removes and regets dependencies for xmpp/devAPI"
+}
+
+tt_kill () {
+    case "$1" in
+        cassandra | c) kill $(ps -e | grep cassandra | grep -v grep | awk '{print $1}');;
+        *) echo "$1 is an unimplemented thing to kill"
+    esac
+}
+
+tt_reget_deps () {
+    local xmpp_path=~/Code/xmpp/ttserver
+    local devapi_path=~/Code/developer_api
+    local roles_path=~/Code/roles
+
+    case "$1" in
+        x | xmpp) rm -rf $xmpp_path/deps && $xmpp_path/rebar get-deps && make;;
+        t | ttserver) rm -rf $xmpp_path/deps && $xmpp_path/rebar get-deps && make;;
+        d | devapi) rm -rf $devapi_path/deps && $devapi_path/rebar get-deps && make;;
+        r | roles) rm -rf $roles_path/deps && $roles_path/rebar get-deps && $roles_path/rebar compile;;
+        *) echo "$1 is an invalid project name"
+    esac
+}
+
+case "$1" in
+    ev | erlVer) tt_get_erlang_ver;;
+    h | help) display_help;;
+    kill) tt_kill $2;;
+    l | list) display_help;;
+    redep) tt_reget_deps $2;;
+    *) display_help;;
+esac
+
