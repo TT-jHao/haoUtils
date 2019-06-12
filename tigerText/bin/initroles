@@ -1,0 +1,2 @@
+#!/bin/bash
+osascript ~/Code/haoUtils/tigerText/initRoles.scpt
